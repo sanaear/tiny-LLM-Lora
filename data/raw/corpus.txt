@@ -1,0 +1,4 @@
+what is a neural network
+a neural network is a machine learning model
+what is a transformer model
+a transformer uses self attention

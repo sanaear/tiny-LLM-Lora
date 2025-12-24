@@ -1,0 +1,16 @@
+# Environnements virtuels
+venv/
+env/
+tinyllm-env/
+
+# Python
+__pycache__/
+*.pyc
+
+# Torch / datasets
+*.pt
+*.bin
+*.ckpt
+
+# OS
+.DS_Store
