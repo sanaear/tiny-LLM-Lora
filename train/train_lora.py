@@ -5,10 +5,12 @@ from transformers import (
     AutoModelForCausalLM,
     Trainer,
     TrainingArguments,
-    DataCollatorForLanguageModeling
+    DataCollatorForLanguageModeling,
+    BitsAndBytesConfig
 )
 from datasets import Dataset
 from peft import LoraConfig, get_peft_model
+
 
 # =========================
 # 1. Charger le corpus
@@ -25,7 +27,6 @@ dataset = Dataset.from_dict({"text": [text]})
 # =========================
 # 2. Tokenizer
 # =========================
-
 tokenizer = AutoTokenizer.from_pretrained("distilgpt2")
 tokenizer.pad_token = tokenizer.eos_token
 
@@ -40,11 +41,23 @@ def tokenize(example):
 tokenized_ds = dataset.map(tokenize, batched=True, remove_columns=["text"])
 
 # =========================
-# 3. Modèle + LoRA
+# 3. QLoRA : Quantification 4-bit (BitsAndBytes)
 # =========================
-
-model = AutoModelForCausalLM.from_pretrained("distilgpt2")
-
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.float16,
+    bnb_4bit_use_double_quant=True
+)
+# =========================
+# 4. Charger le modèle quantifié
+# =========================
+model = AutoModelForCausalLM.from_pretrained(
+    "distilgpt2",
+    quantization_config=bnb_config,
+    device_map="auto"
+)
+# ============Configuration LoRA=============
 lora_config = LoraConfig(
     r=8,
     lora_alpha=16,
@@ -54,11 +67,13 @@ lora_config = LoraConfig(
     task_type="CAUSAL_LM"
 )
 
+
 model = get_peft_model(model, lora_config)
 model.print_trainable_parameters()
 
+
 # =========================
-# 4. Entraînement
+# 5. Entraînement
 # =========================
 
 training_args = TrainingArguments(
@@ -70,6 +85,7 @@ training_args = TrainingArguments(
     save_strategy="no",
     report_to="none"
 )
+
 
 trainer = Trainer(
     model=model,
@@ -83,29 +99,27 @@ trainer = Trainer(
 
 trainer.train()
 
+
 # ===== SAUVEGARDE LORA =====
 output_dir = "../lora-out"
-
-trainer.model.save_pretrained(output_dir)
+model.save_pretrained(output_dir)
 tokenizer.save_pretrained(output_dir)
 
-print(f"\n✅ LoRA sauvegardé dans : {output_dir}")
+print(f"✅ QLoRA sauvegardé dans {output_dir}")
+
 
 
 # =========================
 # 5. Génération
 # =========================
 
-prompt = "what is a neural network"
-inputs = tokenizer(prompt, return_tensors="pt")
+prompt = "What is a neural network?"
+inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
 outputs = model.generate(
     **inputs,
     max_new_tokens=80,
-    do_sample=True,
     temperature=0.7
 )
 
-print("\n===== TEXTE APRÈS LoRA =====\n")
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
-
