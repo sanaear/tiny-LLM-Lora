@@ -1,4 +1,27 @@
-what is a neural network
-a neural network is a machine learning model
-what is a transformer model
-a transformer uses self attention
+A neural network is a machine learning model.
+A neural network is composed of layers.
+A neural network learns weights from data.
+A neural network uses backpropagation.
+A neural network minimizes a loss function.
+A neural network can classify data.
+A neural network can perform regression.
+A neural network processes numerical inputs.
+A neural network outputs predictions.
+A neural network is trained using gradient descent.
+
+A transformer is a neural network architecture.
+A transformer uses self-attention mechanisms.
+A transformer processes sequences in parallel.
+A transformer does not use recurrence.
+A transformer encodes positional information.
+A transformer is used in language models.
+A transformer learns contextual representations.
+A transformer improves long-range dependencies.
+A transformer scales efficiently with data.
+A transformer powers large language models.
+
+Deep learning relies on neural networks.
+Deep learning models learn hierarchical features.
+Deep learning requires large datasets.
+Deep learning uses optimization algorithms.
+Deep learning models generalize patterns.
