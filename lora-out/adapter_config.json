@@ -9,7 +9,7 @@
   "ensure_weight_tying": false,
   "eva_config": null,
   "exclude_modules": null,
-  "fan_in_fan_out": true,
+  "fan_in_fan_out": false,
   "inference_mode": true,
   "init_lora_weights": true,
   "layer_replication": null,
